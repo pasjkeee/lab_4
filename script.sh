@@ -127,6 +127,7 @@ echo Введите номер группы:
                     do
                     test $F == 1 && grep "$names" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -o > cur.txt || grep "$names" $THIS/$DIR2/tests/TEST-? | grep '[3-5]$' -o > cur.txt # Выводим все оценки студента в отдельный файл
                     test $F == 1 && total=$(grep "$names" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -c) || total=$(grep "$names" $THIS/$DIR2/tests/TEST-? | grep '[3-5]$' -c) # Подсчет общего числа оценок
+                    test $F == 1 && grep "$names" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -c  >> cut.txt || grep "$names" $THIS/$DIR2/tests/TEST-? | grep '[3-5]$'  >> cut.txt
                     sum=0
                     S=0
                     while read -r line # Считаем общий балл
@@ -136,31 +137,42 @@ echo Введите номер группы:
                     done < cur.txt
                     sum=$( echo "scale=2; $sum/$total" | bc -l ) # Находим средний балл
                     ((S/=$total))
-                    sed -i "s/.*$names.*/$sum:&:$S/" $THIS/$NUMBER-attendance
+                    sed -i "s/.*$names.*/$sum:&:$S/" $THIS/$NUMBER-attendance #i без изменений
                     test $min -gt $S && min=$S # Запоминаем минимальный и максимальный средний балл
                     test $max -lt $S && max=$S
                     done < $THIS/$NUMBER-attendance
                 sort $THIS/$NUMBER-attendance > cur.txt
+
+                readarray arr < cut.txt
+                echo ${arr[0]}
+
                 i=0
+                j=0
+                u=4
                 while IFS=: read -r count names att Sum # Вывод отсортированного по среднему баллу списка студентов группы
                 do
                 ((i++))
                 printf "%-3s %-15s %-5s\n" "$i" "$names" "$count"
                 done < $THIS/cur.txt
                 echo
-                echo Студенты с худшим средним баллом:
+                j=0
+                echo Студенты сдавшие с первой попытки:
                 while IFS=: read -r count names att Sum
                 do
-                test $Sum -eq $min && printf "%-15s %-5s\n" "$names" "$count"
+                test ${arr[$j]} -eq $u && printf "%-15s %-5s\n" "$names" "${arr[$j]}"
+                ((j++))
                 done < $THIS/$NUMBER-attendance
                 echo
-                echo Студенты с лучшим средним баллом:
+                j=0
+                echo Студенты не сдавшие с первой попытки:
                 while IFS=: read -r count names att Sum
                 do
-                test $Sum -eq $max && printf "%-15s %-5s\n" "$names" "$count"
+                test ${arr[$j]} -ne $u && printf "%-15s %-5s\n" "$names" "${arr[$j]}"
+                ((j++))
                 done < $THIS/$NUMBER-attendance
                 rm $THIS/cur.txt # Удаляем вспомогательный файлы
                 rm $THIS/$NUMBER-attendance
+                rm $THIS/cut.txt
                 echo
                 elif [ $F == 3 ]
             then
