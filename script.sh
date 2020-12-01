@@ -28,6 +28,8 @@ echo Введите номер группы:
                     test ${att:i:1} == '1' && ((kol++)) #Получение элементов массива начиная с элемента с индексом s до элемента с индексом s+(n-1)
                     ((i++))
                 done
+                test $min -gt $kol && min=$kol # >
+                test $max -lt $kol && max=$kol # <
                 test $kol -le 9 && sed -i "s/.*$names.*/0$kol:&/" $THIS/$NUMBER-attendance || sed -i "s/.*$names.*/$kol:&/" $THIS/$NUMBER-attendance #Добавляем в начале каждой строки количество занятий, которые посетил студент
             done < $THIS/$NUMBER-attendance 
 
@@ -39,4 +41,17 @@ echo Введите номер группы:
                 printf " %-3s %-15s %-4s\n" "$i" "$names" "$count"
             done < $THIS/cur.txt
             rm cur.txt
+            echo
+            echo Студенты с худшей посещаемостью:
+            while IFS=: read -r count names att;
+            do
+                test $count -eq $min && printf "%-15s %-5s\n" "$names" "$count"
+            done < $THIS/$NUMBER-attendance
+            echo
+            echo Студенты с лучшей посещаемостью:
+            while IFS=: read -r count names att;
+            do
+                test $count -eq $max && printf "%-15s %-5s\n" "$names" "$count"
+            done < $THIS/$NUMBER-attendance
+            rm $THIS/$NUMBER-attendance
     $SHELL
