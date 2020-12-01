@@ -49,7 +49,27 @@ echo Введите номер группы:
                     test $max -lt $S && max=$S
                     done < $THIS/$NUMBER-attendance
                 sort $THIS/$NUMBER-attendance > cur.txt
-                cat < cur.txt
+                i=0
+                while IFS=: read -r count names att Sum # Вывод отсортированного по среднему баллу списка студентов группы
+                do
+                ((i++))
+                printf "%-3s %-15s %-5s\n" "$i" "$names" "$count"
+                done < $THIS/cur.txt
+                echo
+                echo Студенты с худшим средним баллом:
+                while IFS=: read -r count names att Sum
+                do
+                test $Sum -eq $min && printf "%-15s %-5s\n" "$names" "$count"
+                done < $THIS/$NUMBER-attendance
+                echo
+                echo Студенты с лучшим средним баллом:
+                while IFS=: read -r count names att Sum
+                do
+                test $Sum -eq $max && printf "%-15s %-5s\n" "$names" "$count"
+                done < $THIS/$NUMBER-attendance
+                rm $THIS/cur.txt # Удаляем вспомогательный файлы
+                rm $THIS/$NUMBER-attendance
+                echo
             else
             echo "Неверная цифра"
             echo "Введите цифру ещё раз"
