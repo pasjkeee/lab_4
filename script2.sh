@@ -49,12 +49,13 @@ echo Введите номер группы:
                     test $max -lt $S && max=$S
                     done < $THIS/$NUMBER-attendance
                 sort $THIS/$NUMBER-attendance > cur.txt
+                cat < cur.txt
             else
             echo "Неверная цифра"
             echo "Введите цифру ещё раз"
             echo ======================
             fi
-        done
+        done 
         else
             echo "Неверный номер группы"
             echo "Введите номергруппы ещё раз ещё раз"
