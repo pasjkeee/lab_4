@@ -1,7 +1,7 @@
 # lab_4
 Состав бригады:
 
-🚀 1) Рыбкин Павел - Middle Developer
+🚀 1) Рыбкин Павел - Middle Dev
 
 👻 2) Матвеев Денис - Project Manager
 
