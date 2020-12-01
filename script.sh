@@ -13,7 +13,8 @@ echo Введите номер группы:
         echo 2 - $DIR2
     #Копируем исходный файл, чтобы можно было его изменять
     test $F == 1 && cp $THIS/$DIR1/$NUMBER-attendance $THIS/ || cp $THIS/$DIR2/$NUMBER-attendance $THIS/ 
-
+    min=100
+    max=0
     sed -i 's/[[:space:]]/:/' $THIS/$NUMBER-attendance #Заменяем все пробелы на :
      #Считываем содержимое каждой строки в отедельную переменную в fam запись фамилий в att - запись посещаемости 010101010
     while IFS=: read -r fam att;
@@ -25,8 +26,7 @@ echo Введите номер группы:
                     test ${att:i:1} == '1' && ((kol++)) #Считаем количество посещенных занятий
                     ((i++))
                 done
-                echo $kol;
+                test $kol -le 9 && sed -i "s/.*$fam.*/0$kol:&/" $THIS/$NUMBER-attendance || sed -i "s/.*$fam.*/$kol:&/" $THIS/$NUMBER-attendance #Добавляем в начале каждой строки количество занятий, которые посетил студент
             done < $THIS/$NUMBER-attendance 
-
 
     $SHELL
