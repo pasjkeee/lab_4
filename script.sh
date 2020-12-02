@@ -50,7 +50,7 @@ echo Введите номер группы:
 
             sort $THIS/$NUMBER-attendance > cur.txt
             i=0
-            while IFS=: read -r count names att #Вывод результата
+            while IFS=: read -r count names att #Вывод результата r- считывание построчно
             do
                 ((i++))
                 printf " %-3s %-15s %-4s\n" "$i" "$names" "$count"
@@ -58,7 +58,7 @@ echo Введите номер группы:
             rm cur.txt
             echo
             echo Студенты с худшей посещаемостью:
-            while IFS=: read -r count names att;
+            while IFS=: read -r count names att; 
             do
                 test $count -eq $min && printf "%-15s %-5s\n" "$names" "$count"
             done < $THIS/$NUMBER-attendance
@@ -142,7 +142,7 @@ echo Введите номер группы:
                 readarray arr < cut.txt
                 echo ${arr[0]}
 
-                
+                i=0
                 while IFS=: read -r count names att Sum # Вывод отсортированного по среднему баллу списка студентов группы
                 do
                 ((i++))
@@ -190,6 +190,36 @@ echo Введите номер группы:
     fi
 done
 }
+
+flag=0
+while [ $flag != 1 ]
+do
+echo Введите ФИО
+read -p "Ввод: " FIO
+echo --------------------
+for num in {4..16} # Проверка
+do
+if [ $num -le 9 ]
+then
+cp $THIS/$DIR1/A-06-0$num-attendance $THIS/
+sed -i "s/[[:space:]]/:/g" $THIS/A-06-0$num-attendance 
+while IFS=: read -r name att
+do
+test $FIO == $name && flag=1 && CUR="A-06-0$num-attendance"
+done < $THIS/A-06-0$num-attendance 
+rm $THIS/A-06-0$num-attendance
+else
+cp $THIS/$DIR1/A-06-$num-attendance $THIS/
+sed -i "s/[[:space:]]/:/g" $THIS/A-06-$num-attendance 
+while IFS=: read -r name att
+do
+test "$FIO" == "$name" && flag=1 && CUR="A-06-$num-attendance"
+done < $THIS/A-06-$num-attendance 
+rm $THIS/A-06-$num-attendance
+fi
+done
+
+
 
 echo Добро пожаловать в скрипт!
 FLAG=0
