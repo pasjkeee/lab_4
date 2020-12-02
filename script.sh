@@ -121,13 +121,11 @@ echo Введите номер группы:
         flag_2=1
                 test $F == 1 && cp $THIS/$DIR1/$NUMBER-attendance $THIS/ || cp $THIS/$DIR2/$NUMBER-attendance $THIS/ # Копируем исходный файл с посещаемостью, чтобы знать, оценки каких студентов следует искать
                 sed -i "s/[[:space:]]/:/g" $THIS/$NUMBER-attendance
-                min=500
-                max=0
                 while IFS=: read -r names att
                     do
                     test $F == 1 && grep "$names" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -o > cur.txt || grep "$names" $THIS/$DIR2/tests/TEST-? | grep '[3-5]$' -o > cur.txt # Выводим все оценки студента в отдельный файл
                     test $F == 1 && total=$(grep "$names" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -c) || total=$(grep "$names" $THIS/$DIR2/tests/TEST-? | grep '[3-5]$' -c) # Подсчет общего числа оценок
-                    test $F == 1 && grep "$names" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -c  >> cut.txt || grep "$names" $THIS/$DIR2/tests/TEST-? | grep '[3-5]$'  >> cut.txt
+                    test $F == 1 && grep "$names" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -c  >> cut.txt || grep "$names" $THIS/$DIR2/tests/TEST-? | grep '[3-5]$'  -c >> cut.txt
                     sum=0
                     S=0
                     while read -r line # Считаем общий балл
@@ -138,17 +136,13 @@ echo Введите номер группы:
                     sum=$( echo "scale=2; $sum/$total" | bc -l ) # Находим средний балл
                     ((S/=$total))
                     sed -i "s/.*$names.*/$sum:&:$S/" $THIS/$NUMBER-attendance #i без изменений
-                    test $min -gt $S && min=$S # Запоминаем минимальный и максимальный средний балл
-                    test $max -lt $S && max=$S
                     done < $THIS/$NUMBER-attendance
                 sort $THIS/$NUMBER-attendance > cur.txt
 
                 readarray arr < cut.txt
                 echo ${arr[0]}
 
-                i=0
-                j=0
-                u=4
+                
                 while IFS=: read -r count names att Sum # Вывод отсортированного по среднему баллу списка студентов группы
                 do
                 ((i++))
@@ -156,6 +150,7 @@ echo Введите номер группы:
                 done < $THIS/cur.txt
                 echo
                 j=0
+                u=4
                 echo Студенты сдавшие с первой попытки:
                 while IFS=: read -r count names att Sum
                 do
@@ -164,10 +159,10 @@ echo Введите номер группы:
                 done < $THIS/$NUMBER-attendance
                 echo
                 j=0
-                echo Студенты не сдавшие с первой попытки:
+                echo Студенты не сдавшие хотя бы один предмет:
                 while IFS=: read -r count names att Sum
                 do
-                test ${arr[$j]} -ne $u && printf "%-15s %-5s\n" "$names" "${arr[$j]}"
+                test  ${arr[$j]} -lt $u  && printf "%-15s %-5s\n" "$names" "${arr[$j]}"
                 ((j++))
                 done < $THIS/$NUMBER-attendance
                 rm $THIS/cur.txt # Удаляем вспомогательный файлы
