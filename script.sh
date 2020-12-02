@@ -133,7 +133,7 @@ echo Введите номер группы:
                     ((sum+=$line))
                     ((S+=$line*100))
                     done < cur.txt
-                    sum=$( echo "scale=2; $sum/$total" | bc -l ) # Находим средний балл
+                    sum=$( echo "scale=2; $sum/$total" | bc -l ) # Находим средний балл -l , {- -mathlib}: определить стандартную математическую библиотеку
                     ((S/=$total))
                     sed -i "s/.*$names.*/$sum:&:$S/" $THIS/$NUMBER-attendance #i без изменений
                     done < $THIS/$NUMBER-attendance
@@ -194,44 +194,106 @@ done
 flag=0
 while [ $flag != 1 ]
 do
-echo Введите ФИО
-read -p "Ввод: " FIO
-echo ======================
-for num in {4..17} # Проверка
-do
-if [ $num -le 9 ]
-then
-cp $THIS/$DIR1/A-06-0$num-attendance $THIS/
-sed -i "s/[[:space:]]/:/g" $THIS/A-06-0$num-attendance 
-while IFS=: read -r name att
-do
-test $FIO == $name && flag=1 && CUR="A-06-0$num-attendance"
-done < $THIS/A-06-0$num-attendance 
-rm $THIS/A-06-0$num-attendance
-else
-cp $THIS/$DIR1/A-06-$num-attendance $THIS/ 
-sed -i "s/[[:space:]]/:/g" $THIS/A-06-$num-attendance 
-while IFS=: read -r name att
-do
-test "$FIO" == "$name" && flag=1 && CUR="A-06-$num-attendance"
-done < $THIS/A-06-$num-attendance 
-cp $THIS/$DIR1/A-09-17-attendance $THIS/ 
-sed -i "s/[[:space:]]/:/g" $THIS/A-09-17-attendance
-while IFS=: read -r name att
-do
-test "$FIO" == "$name" && flag=1 && CUR="A-09-17-attendance"
-done < $THIS/A-09-17-attendance 
-rm $THIS/A-06-$num-attendance
-rm $THIS/A-09-17-attendance
-fi
-done
-if [ $flag == 1 ]
-then
-echo Характеристика:
-echo $(grep -ih -A2 "$FIO" -r $THIS/students/general/notes/ | grep -iv "$FIO") #-i - не учитывать регистр + v инвертировать
-echo ======================
-fi
-done
+    echo Введите ФИО
+    read -p "Ввод: " FIO
+    echo ======================
+    for num in {4..17} # Проверка
+    do
+        if [ $num -le 9 ]
+        then
+            cp $THIS/$DIR1/A-06-0$num-attendance $THIS/
+            sed -i "s/[[:space:]]/:/g" $THIS/A-06-0$num-attendance 
+            while IFS=: read -r name att
+            do
+                test $FIO == $name && flag=1 && CUR="A-06-0$num-attendance"
+            done < $THIS/A-06-0$num-attendance 
+            rm $THIS/A-06-0$num-attendance
+        else
+            cp $THIS/$DIR1/A-06-$num-attendance $THIS/ 
+            sed -i "s/[[:space:]]/:/g" $THIS/A-06-$num-attendance 
+            while IFS=: read -r name att
+            do
+                test "$FIO" == "$name" && flag=1 && CUR="A-06-$num-attendance"
+            done < $THIS/A-06-$num-attendance 
+            cp $THIS/$DIR1/A-09-17-attendance $THIS/ 
+            sed -i "s/[[:space:]]/:/g" $THIS/A-09-17-attendance
+            while IFS=: read -r name att
+            do
+                test "$FIO" == "$name" && flag=1 && CUR="A-09-17-attendance"
+            done < $THIS/A-09-17-attendance 
+            rm $THIS/A-06-$num-attendance 
+            rm $THIS/A-09-17-attendance
+        fi
+    done
+    if [ $flag == 1 ]
+    then
+        echo Характеристика:
+        echo $(grep -ih -A2 "$FIO" -r $THIS/students/general/notes/ | grep -iv "$FIO") #-i - не учитывать регистр + v инвертировать -h не выводить имя файла в результатах поиска внутри файлов Linux; Вхождение и т строк до него -r рекурсивный поиск
+        echo ======================
+        cp $THIS/$DIR1/$CUR $THIS/
+        sed -i 's/[[:space:]]/:/g' $THIS/$CUR #Заменяем все пробелы на :
+        while IFS=: read -r fam att; #Считываем содержимое каждой строки в отедельную переменную
+        do
+            if [ $fam == $FIO ]
+            then
+                grep "$fam" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -o > cur.txt
+                total=$(grep "$fam" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -c)
+                sum=0
+                while read -r line # Считаем общий балл
+                do
+                    ((sum+=$line))
+                done < cur.txt
+                sum=$( echo "scale=2; $sum/$total" | bc -l ) # Находим средний балл
+                kol=0
+                i=0
+                while [ $i -lt ${#att} ] #Итерируемся по содержимому переменной
+                do
+                    test ${att:i:1} == '1' && ((kol++)) #Считаем количество посещенных занятий
+                    ((i++))
+                done
+            fi
+        done < $THIS/$CUR
+        echo Количество занятий, которые посетил студент $fam: $kol
+        echo ======================
+        echo Средний балл за $DIR1:
+        printf "%-15s %-5s\n" "$FIO" "$sum"
+        rm $THIS/cur.txt # Удаляем вспомогательный файл
+        rm $THIS/$CUR
+        echo ======================
+        cp $THIS/$DIR2/$CUR $THIS/
+        sed -i 's/[[:space:]]/:/g' $THIS/$CUR #Заменяем все пробелы на :
+        while IFS=: read -r fam att; #Считываем содержимое каждой строки в отедельную переменную
+        do
+            if [ $fam == $FIO ]
+            then
+                grep "$fam" $THIS/$DIR2/tests/TEST-? | grep '[3-5]$' -o > cur.txt
+                total=$(grep "$fam" $THIS/$DIR2/tests/TEST-? | grep '[3-5]$' -c)
+                sum=0
+                while read -r line # Считаем общий балл
+                do
+                    ((sum+=$line))
+                done < cur.txt
+                sum=$( echo "scale=2; $sum/$total" | bc -l ) # Находим средний балл
+                kol=0
+                i=0
+                while [ $i -lt ${#att} ] #Итерируемся по содержимому переменной
+                do
+                    test ${att:i:1} == '1' && ((kol++)) #Считаем количество посещенных занятий
+                    ((i++))
+                done
+            fi
+        done < $THIS/$CUR
+        echo Количество занятий, которые посетил студент $fam: $kol
+        echo ======================
+        echo Средний балл за $DIR2:
+        printf "%-15s %-5s\n" "$FIO" "$sum"
+        rm $THIS/cur.txt # Удаляем вспомогательный файл
+        rm $THIS/$CUR
+        echo  ======================
+        else
+            echo Такого студента не существует. Попробуйте снова.
+    fi
+done    
 $SHELL
 
 
