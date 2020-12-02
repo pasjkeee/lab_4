@@ -191,6 +191,7 @@ echo Введите номер группы:
 done
 }
 
+function3_(){
 flag=0
 while [ $flag != 1 ]
 do
@@ -294,20 +295,20 @@ do
             echo Такого студента не существует. Попробуйте снова.
     fi
 done    
-$SHELL
-
+}
 
 
 echo Добро пожаловать в скрипт!
 FLAG=0
-while [ $FLAG != 3 ]
+while [ $FLAG != 4 ]
 do
 #-------User interface
 echo
 echo Введите команду
 echo 1 - Посещаемость
 echo 2 - Оценки
-echo 3 - Выход из скрипта
+echo 3 - Инормация об ученике
+echo 4 - Выход из скрипта
 read -p "Ввод: " FLAG
 echo --------------------
 if [ $FLAG == 1 ]
@@ -317,6 +318,9 @@ elif [ $FLAG == 2 ]
 then
 function2_
 elif [ $FLAG == 3 ]
+then
+function3_
+elif [ $FLAG == 4 ]
 then
 echo Выход из программы!
 else
