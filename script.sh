@@ -196,8 +196,8 @@ while [ $flag != 1 ]
 do
 echo Введите ФИО
 read -p "Ввод: " FIO
-echo --------------------
-for num in {4..16} # Проверка
+echo ======================
+for num in {4..17} # Проверка
 do
 if [ $num -le 9 ]
 then
@@ -209,15 +209,30 @@ test $FIO == $name && flag=1 && CUR="A-06-0$num-attendance"
 done < $THIS/A-06-0$num-attendance 
 rm $THIS/A-06-0$num-attendance
 else
-cp $THIS/$DIR1/A-06-$num-attendance $THIS/
+cp $THIS/$DIR1/A-06-$num-attendance $THIS/ 
 sed -i "s/[[:space:]]/:/g" $THIS/A-06-$num-attendance 
 while IFS=: read -r name att
 do
 test "$FIO" == "$name" && flag=1 && CUR="A-06-$num-attendance"
 done < $THIS/A-06-$num-attendance 
+cp $THIS/$DIR1/A-09-17-attendance $THIS/ 
+sed -i "s/[[:space:]]/:/g" $THIS/A-09-17-attendance
+while IFS=: read -r name att
+do
+test "$FIO" == "$name" && flag=1 && CUR="A-09-17-attendance"
+done < $THIS/A-09-17-attendance 
 rm $THIS/A-06-$num-attendance
+rm $THIS/A-09-17-attendance
 fi
 done
+if [ $flag == 1 ]
+then
+echo Характеристика:
+echo $(grep -ih -A2 "$FIO" -r $THIS/students/general/notes/ | grep -iv "$FIO") #-i - не учитывать регистр + v инвертировать
+echo ======================
+fi
+done
+$SHELL
 
 
 
