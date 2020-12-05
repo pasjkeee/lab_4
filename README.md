@@ -1,7 +1,7 @@
 # lab_4
 Состав бригады:
 
-🚀 1) Рыбкин Павел - Middle Developer
+🚀 1) Рыбкин Павел - Full Stack Middle Developer
 
 👻 2) Матвеев Денис - Project Manager dungeon master
 
