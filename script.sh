@@ -12,10 +12,10 @@ echo Введите номер группы:
     read NUMBER
     echo ======================
     are=$(find $THIS/ -name $NUMBER-attendance) 
-    if [ ${#are} -gt 4 ] #Проверка, что такая группа есть
+    if [ ${#are} -gt 4 ] #Проверка, что такая группа есть >
     then
     flag=1
-    F=0
+    F=0 
     while [ $F != 3 ] && [ $F != 4 ]
     do
     echo Выберите предмет # Выбор действия
@@ -113,7 +113,7 @@ echo Введите номер группы:
         echo 2 - $DIR2
         echo 3 - Назад
         echo 4 - Выход
-        read -p "Ввод: " F # прочитанной как подсказку те не добавляет конечную новую строку перед попыткой прочитать ввод
+        read -p "Ввод: " F # прочитанной как подсказку те не добавляет конечную новую строку перед попыткой прочитать ввод -p – позволяет задать фразу подсказку
         echo ======================
     #Копируем исходный файл, чтобы можно было его изменять
     if [ $F == 1 ] || [ $F == 2 ]
@@ -121,30 +121,36 @@ echo Введите номер группы:
         flag_2=1
                 test $F == 1 && cp $THIS/$DIR1/$NUMBER-attendance $THIS/ || cp $THIS/$DIR2/$NUMBER-attendance $THIS/ # Копируем исходный файл с посещаемостью, чтобы знать, оценки каких студентов следует искать
                 sed -i "s/[[:space:]]/:/g" $THIS/$NUMBER-attendance
+                declare -a arr1
                 while IFS=: read -r names att
                     do
-                    test $F == 1 && grep "$names" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -o > cur.txt || grep "$names" $THIS/$DIR2/tests/TEST-? | grep '[3-5]$' -o > cur.txt # Выводим все оценки студента в отдельный файл
-                    test $F == 1 && total=$(grep "$names" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -c) || total=$(grep "$names" $THIS/$DIR2/tests/TEST-? | grep '[3-5]$' -c) # Подсчет общего числа оценок
-                    test $F == 1 && grep "$names" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -c  >> cut.txt || grep "$names" $THIS/$DIR2/tests/TEST-? | grep '[3-5]$'  -c >> cut.txt
+                    test $F == 1 && grep "$names" $THIS/$DIR1/tests/TEST-? | grep '[0-5]$' -o > cur.txt || grep "$names" $THIS/$DIR2/tests/TEST-? | grep '[0-5]$' -o > cur.txt # Выводим все оценки студента в отдельный файл -o выводит только совпавшие части строк
+                    test $F == 1 && total=$(grep "$names" $THIS/$DIR1/tests/TEST-? | grep '[0-5]$' -c) || total=$(grep "$names" $THIS/$DIR2/tests/TEST-? | grep '[0-5]$' -c) # Подсчет общего числа оценок -c - подсчитать количество вхождений шаблона;
+                    test $F == 1 && grep "$names" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -c  >> cut.txt || grep "$names" $THIS/$DIR2/tests/TEST-? | grep '[3-5]$'  -c >> cut.txt #c выдает количество совпадений
                     sum=0
                     S=0
+                    arr1+=( $total )
+                    nu=0
                     while read -r line # Считаем общий балл
                     do
                     ((sum+=$line))
                     ((S+=$line*100))
-                    done < cur.txt
-                    sum=$( echo "scale=2; $sum/$total" | bc -l ) # Находим средний балл -l , {- -mathlib}: определить стандартную математическую библиотеку
+                    done < cur.txt #cat input.file | while read -r line; 
+                    if [ $total -ne $nu ] 
+                    then
+                        sum=$( echo "scale=2; $sum/$total" | bc -l ) # Находим средний балл -l , {- -mathlib}: определить стандартную математическую библиотеку
+                    fi 
+                    
                     ((S/=$total))
                     sed -i "s/.*$names.*/$sum:&:$S/" $THIS/$NUMBER-attendance #i без изменений
-                    done < $THIS/$NUMBER-attendance
-                sort $THIS/$NUMBER-attendance > cur.txt
+                    
+                    done < $THIS/$NUMBER-attendance #cat input.file | while read -r line; 
+                sort $THIS/$NUMBER-attendance > cur.txt 
 
                 readarray arr < cut.txt
-                echo ${arr[0]}
-
                 i=0
                 while IFS=: read -r count names att Sum # Вывод отсортированного по среднему баллу списка студентов группы
-                do
+                do  
                 ((i++))
                 printf "%-3s %-15s %-5s\n" "$i" "$names" "$count"
                 done < $THIS/cur.txt
@@ -154,7 +160,7 @@ echo Введите номер группы:
                 echo Студенты сдавшие с первой попытки:
                 while IFS=: read -r count names att Sum
                 do
-                test ${arr[$j]} -eq $u && printf "%-15s %-5s\n" "$names" "${arr[$j]}"
+                test ${arr1[$j]} -eq $u && printf "%-15s %-5s\n" "$names" "${arr[$j]}"
                 ((j++))
                 done < $THIS/$NUMBER-attendance
                 echo
@@ -237,8 +243,8 @@ do
         do
             if [ $fam == $FIO ]
             then
-                grep "$fam" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -o > cur.txt
-                total=$(grep "$fam" $THIS/$DIR1/tests/TEST-? | grep '[3-5]$' -c)
+                grep "$fam" $THIS/$DIR1/tests/TEST-? | grep '[0-5]$' -o > cur.txt
+                total=$(grep "$fam" $THIS/$DIR1/tests/TEST-? | grep '[0-5]$' -c)
                 sum=0
                 while read -r line # Считаем общий балл
                 do
