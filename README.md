@@ -65,6 +65,32 @@ ____
 
 ____
 
+## Content
+
+<pre>
+$THIS
+├── srcipt.sh
+├── README.md  
+├── $DIR1/   
+│   ├── $NUMBER-attendance   
+│   └── tests/
+│       ├── $TEST-1
+│       ├── $TEST-2
+│       ├── $TEST-3
+│       └── $TEST-4
+├── $DIR2/   
+│   ├── $NUMBER-attendance   
+│   └── tests/
+│       ├── $TEST-1
+│       ├── $TEST-2
+│       ├── $TEST-3
+│       └── $TEST-4
+└── students/ 
+    └── general/
+        └── notes/
+            └── $notes.log
+</pre>
+
 
 В директории могут содержаться 3 формы фалов:
 
@@ -78,7 +104,7 @@ ____
 
   Он должен находится в директории: `$THIS/$DIR/tests/$TEST-`
   
- + Файл с досье `notes`
+ + Файл с досье `$notes.log`
   Он должен находится в директории: `$THIS/students/general/notes/`
   
   ____
