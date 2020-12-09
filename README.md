@@ -198,6 +198,29 @@ ____
  Неверная цифра
  Введите цифру ещё раз
   ```
+  
+  
+ ```Shell
+ Неверная цифра
+ Введите цифру ещё раз
+  ```
+  ### Проверка есть ли хотя бы один табель об успеваемости группы по этому предмету
+  ```Shell
+  are1=$(find ./$DIR1 -name $NUMBER-attendance)
+        are2=$(find ./$DIR2 -name $NUMBER-attendance)
+        if [ $F == 1 ] && [ ${#are1} -eq 0 ]
+        then 
+        echo "Нет никого в директории DIR1"
+        return
+        fi
+        are3=$(find ./$DIR2 -name $NUMBER-attendance)
+        if [ $F == 2 ] && [ ${#are2} -eq 0 ]
+        then 
+        echo "Нет никого в директории DIR2"
+        return
+        fi
+```
+  
  Пример взаимодействия со скриптом: 
   
    ```Shell
