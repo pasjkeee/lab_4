@@ -28,7 +28,19 @@ echo Введите номер группы:
     #Копируем исходный файл, чтобы можно было его изменять
     if [ $F == 1 ] || [ $F == 2 ]
         then
-        flag_2=1
+        are1=$(find ./$DIR1 -name $NUMBER-attendance)
+        are2=$(find ./$DIR2 -name $NUMBER-attendance)
+        if [ $F == 1 ] && [ ${#are1} -eq 0 ]
+        then 
+        echo "Нет никого в директории DIR1"
+        return
+        fi
+        are3=$(find ./$DIR2 -name $NUMBER-attendance)
+        if [ $F == 2 ] && [ ${#are2} -eq 0 ]
+        then 
+        echo "Нет никого в директории DIR2"
+        return
+        fi
     test $F == 1 && cp $THIS/$DIR1/$NUMBER-attendance $THIS/ || cp $THIS/$DIR2/$NUMBER-attendance $THIS/ 
     min=100
     max=0
@@ -119,6 +131,19 @@ echo Введите номер группы:
     if [ $F == 1 ] || [ $F == 2 ]
         then
         flag_2=1
+        are1=$(find ./$DIR1 -name $NUMBER-attendance)
+        are2=$(find ./$DIR2 -name $NUMBER-attendance)
+        if [ $F == 1 ] && [ ${#are1} -eq 0 ]
+        then 
+        echo "Нет никого в директории DIR1"
+        return
+        fi
+        are3=$(find ./$DIR2 -name $NUMBER-attendance)
+        if [ $F == 2 ] && [ ${#are2} -eq 0 ]
+        then 
+        echo "Нет никого в директории DIR2"
+        return
+        fi
                 test $F == 1 && cp $THIS/$DIR1/$NUMBER-attendance $THIS/ || cp $THIS/$DIR2/$NUMBER-attendance $THIS/ # Копируем исходный файл с посещаемостью, чтобы знать, оценки каких студентов следует искать
                 sed -i "s/[[:space:]]/:/g" $THIS/$NUMBER-attendance
                 declare -a arr1
@@ -136,12 +161,12 @@ echo Введите номер группы:
                     ((sum+=$line))
                     ((S+=$line*100))
                     done < cur.txt #cat input.file | while read -r line; 
-                    if [ $total -ne $nu ] 
+                    if [ $total -ne 0 ] 
                     then
                         sum=$( echo "scale=2; $sum/$total" | bc -l ) # Находим средний балл -l , {- -mathlib}: определить стандартную математическую библиотеку
+                        ((S/=$total))
                     fi 
                     
-                    ((S/=$total))
                     sed -i "s/.*$names.*/$sum:&:$S/" $THIS/$NUMBER-attendance #i без изменений
                     
                     done < $THIS/$NUMBER-attendance #cat input.file | while read -r line; 
